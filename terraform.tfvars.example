@@ -1,0 +1,15 @@
+# Example terraform.tfvars file
+# Copy this file to terraform.tfvars and update with your values
+
+aws_region    = "us-east-1"
+bucket_name   = "my-unique-bucket-name-12345"
+environment   = "dev"
+
+enable_versioning      = true
+block_public_access    = true
+enable_lifecycle_rules = false
+
+tags = {
+  Project = "NextOps"
+  Team    = "DevOps"
+}
