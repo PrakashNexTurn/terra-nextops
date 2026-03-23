@@ -1,0 +1,16 @@
+# Example Terraform variables file
+# Copy this to terraform.tfvars and update values as needed
+
+resource_group_name  = "myResourceGroup"
+location             = "eastus"
+app_service_plan_name = "myAppServicePlan"
+app_service_name     = "myAppService"
+app_service_sku      = "F1"  # F1 (Free), B1 (Basic), S1 (Standard)
+os_type              = "Linux"
+runtime_stack        = "PYTHON|3.9"
+
+tags = {
+  Environment = "Production"
+  ManagedBy   = "Terraform"
+  Team        = "DevOps"
+}
