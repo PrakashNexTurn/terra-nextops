@@ -1,85 +1,67 @@
-# Main Terraform configuration for S3 bucket
+# Create Resource Group
+resource "azurerm_resource_group" "app_service_rg" {
+  name     = var.resource_group_name
+  location = var.location
 
-terraform {
-  required_version = ">= 1.0"
-  
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
+  tags = var.common_tags
+}
+
+# Create App Service Plan
+resource "azurerm_service_plan" "app_service_plan" {
+  name                = var.app_service_plan_name
+  location            = azurerm_resource_group.app_service_rg.location
+  resource_group_name = azurerm_resource_group.app_service_rg.name
+  os_type             = var.os_type
+  sku_name            = var.sku_name
+
+  tags = var.common_tags
+}
+
+# Create App Service
+resource "azurerm_windows_web_app" "app_service" {
+  name                = var.app_service_name
+  location            = azurerm_resource_group.app_service_rg.location
+  resource_group_name = azurerm_resource_group.app_service_rg.name
+  service_plan_id     = azurerm_service_plan.app_service_plan.id
+
+  site_config {
+    minimum_tls_version = "1.2"
+    scm_type            = "None"
   }
-}
 
-provider "aws" {
-  region = var.aws_region
-}
-
-# S3 Bucket
-resource "aws_s3_bucket" "main" {
-  bucket = var.bucket_name
-
-  tags = merge(
-    var.tags,
-    {
-      Name        = var.bucket_name
-      Environment = var.environment
-      ManagedBy   = "Terraform"
-    }
-  )
-}
-
-# S3 Bucket Versioning
-resource "aws_s3_bucket_versioning" "main" {
-  bucket = aws_s3_bucket.main.id
-
-  versioning_configuration {
-    status = var.enable_versioning ? "Enabled" : "Suspended"
+  app_settings = {
+    "WEBSITE_RUN_FROM_PACKAGE" = "0"
   }
+
+  https_only = true
+
+  tags = var.common_tags
+
+  depends_on = [azurerm_service_plan.app_service_plan]
 }
 
-# S3 Bucket Server-Side Encryption
-resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
-  bucket = aws_s3_bucket.main.id
+# Create Application Insights (optional but recommended)
+resource "azurerm_application_insights" "app_insights" {
+  name                = var.app_insights_name
+  location            = azurerm_resource_group.app_service_rg.location
+  resource_group_name = azurerm_resource_group.app_service_rg.name
+  application_type    = "web"
 
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
+  tags = var.common_tags
 }
 
-# S3 Bucket Public Access Block
-resource "aws_s3_bucket_public_access_block" "main" {
-  bucket = aws_s3_bucket.main.id
-
-  block_public_acls       = var.block_public_access
-  block_public_policy     = var.block_public_access
-  ignore_public_acls      = var.block_public_access
-  restrict_public_buckets = var.block_public_access
+# Configure App Service Diagnostics Settings
+resource "azurerm_app_service_plan_app_insights_settings" "insights_settings" {
+  app_service_plan_id            = azurerm_service_plan.app_service_plan.id
+  app_insights_id                = azurerm_application_insights.app_insights.id
+  default_sampling_enabled       = true
+  default_sampling_percentage    = 100
 }
 
-# S3 Bucket Lifecycle Configuration (Optional)
-resource "aws_s3_bucket_lifecycle_configuration" "main" {
-  count  = var.enable_lifecycle_rules ? 1 : 0
-  bucket = aws_s3_bucket.main.id
-
-  rule {
-    id     = "transition-to-ia"
-    status = "Enabled"
-
-    transition {
-      days          = 30
-      storage_class = "STANDARD_IA"
-    }
-
-    transition {
-      days          = 90
-      storage_class = "GLACIER"
-    }
-
-    expiration {
-      days = 365
-    }
-  }
+# Optional: Create Custom Domain Binding
+resource "azurerm_app_service_custom_hostname_binding" "custom_domain" {
+  count               = var.custom_domain != null ? 1 : 0
+  hostname            = var.custom_domain
+  app_service_id      = azurerm_windows_web_app.app_service.id
+  ssl_state           = "SniEnabled"
 }

@@ -1,26 +1,40 @@
-# Output values for S3 bucket
-
-output "bucket_id" {
-  description = "The name of the bucket"
-  value       = aws_s3_bucket.main.id
+output "app_service_plan_id" {
+  description = "ID of the App Service Plan"
+  value       = azurerm_service_plan.app_service_plan.id
 }
 
-output "bucket_arn" {
-  description = "The ARN of the bucket"
-  value       = aws_s3_bucket.main.arn
+output "app_service_id" {
+  description = "ID of the App Service"
+  value       = azurerm_windows_web_app.app_service.id
 }
 
-output "bucket_domain_name" {
-  description = "The bucket domain name"
-  value       = aws_s3_bucket.main.bucket_domain_name
+output "app_service_default_hostname" {
+  description = "Default hostname of the App Service"
+  value       = azurerm_windows_web_app.app_service.default_hostname
 }
 
-output "bucket_regional_domain_name" {
-  description = "The bucket region-specific domain name"
-  value       = aws_s3_bucket.main.bucket_regional_domain_name
+output "app_service_identity" {
+  description = "Identity block of the App Service"
+  value       = azurerm_windows_web_app.app_service.identity
 }
 
-output "bucket_region" {
-  description = "The AWS region this bucket resides in"
-  value       = aws_s3_bucket.main.region
+output "app_insights_id" {
+  description = "ID of the Application Insights"
+  value       = azurerm_application_insights.app_insights.id
+}
+
+output "app_insights_instrumentation_key" {
+  description = "Instrumentation key of Application Insights"
+  value       = azurerm_application_insights.app_insights.instrumentation_key
+  sensitive   = true
+}
+
+output "resource_group_name" {
+  description = "Name of the resource group"
+  value       = azurerm_resource_group.app_service_rg.name
+}
+
+output "resource_group_id" {
+  description = "ID of the resource group"
+  value       = azurerm_resource_group.app_service_rg.id
 }
