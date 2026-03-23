@@ -1,0 +1,85 @@
+# Example terraform.tfvars file for AKS deployment
+# Copy this file to terraform.tfvars and update with your Azure credentials and values
+
+# Azure Provider Configuration
+azure_subscription_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+azure_client_id       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+azure_client_secret   = "your-client-secret-here"
+azure_tenant_id       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+azure_region          = "East US"
+
+# AWS Configuration (for existing S3)
+aws_region  = "us-east-1"
+bucket_name = "my-unique-bucket-name-12345"
+environment = "dev"
+
+# AKS Resource Group
+aks_resource_group_name = "rg-aks-cluster-prod"
+
+# Virtual Network Configuration
+aks_vnet_name             = "vnet-aks-prod"
+aks_vnet_address_space    = ["10.0.0.0/16"]
+aks_subnet_name           = "subnet-aks-prod"
+aks_subnet_address_prefixes = ["10.0.1.0/24"]
+
+# AKS Cluster Configuration
+aks_cluster_name = "aks-prod-cluster"
+aks_dns_prefix   = "aksprod"
+kubernetes_version = "1.28"
+
+# Node Pool Configuration
+aks_node_pool_name = "nodepool1"
+aks_node_count     = 3
+aks_node_vm_size   = "Standard_D2s_v3"
+aks_node_os_disk_size = 30
+
+enable_auto_scaling = true
+min_node_count     = 1
+max_node_count     = 5
+
+# Additional Node Pool (optional)
+create_additional_node_pool = false
+additional_node_pool_name   = "nodepool2"
+additional_node_count       = 2
+additional_node_vm_size     = "Standard_D2s_v3"
+
+# Network Configuration
+aks_network_plugin     = "azure"
+aks_network_policy     = "azure"
+aks_service_cidr       = "10.1.0.0/16"
+aks_dns_service_ip     = "10.1.0.10"
+aks_docker_bridge_cidr = "172.17.0.1/16"
+aks_load_balancer_sku  = "standard"
+
+# Security Configuration
+api_server_authorized_ip_ranges = []  # Add your IPs if needed
+enable_rbac                     = true
+enable_azure_ad_rbac           = false
+azure_ad_admin_group_object_ids = []
+
+# Monitoring Configuration
+enable_monitoring           = false
+log_analytics_workspace_id  = ""
+
+# Additional Features
+enable_http_app_routing   = false
+enable_pod_security_policy = false
+
+# Azure Container Registry
+enable_acr        = true
+acr_name          = "akscraccount"  # Must be globally unique, alphanumeric only
+acr_sku          = "Standard"
+acr_admin_enabled = false
+
+# Common Tags
+tags = {
+  Project     = "NextOps"
+  Team        = "DevOps"
+  Environment = "Production"
+  ManagedBy   = "Terraform"
+}
+
+# S3 Configuration (from existing setup)
+enable_versioning      = true
+block_public_access    = true
+enable_lifecycle_rules = false
